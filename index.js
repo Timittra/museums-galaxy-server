@@ -52,6 +52,14 @@ app.post('/addOrder', (req, res) => {
   })
 });
 
+
+app.get('/orderInfo', (req, res) =>{
+  ordersCollection.find({})
+  .toArray((err, items) => {
+      res.send(items);
+  })
+});
+
 app.get('/orders', (req, res) => {
   const queryEmail = req.query.email;
   if (queryEmail) {
@@ -92,14 +100,13 @@ app.get('/allUser', (req, res) => {
 app.post('/addAdmin', (req, res) => {
   const email = req.body.email;
   const adminName = req.body.name;
+  let passNumber = req.body.password;
 
-  adminsCollection.insertOne({ adminName,email })
+  adminsCollection.insertOne({ adminName,email,passNumber })
       .then(result => {
           res.send(result.insertedCount > 0);
       })
 });
-
-
 
 app.delete('/deleteEvent/:id', (req, res)=>{
   const id = ObjectId(req.params.id);
@@ -108,6 +115,26 @@ app.delete('/deleteEvent/:id', (req, res)=>{
   .then(result => {
       res.send(result.deletedCount > 0);
   });
+});
+
+
+app.patch('/update/:id', (req, res) => {
+  ordersCollection.updateOne({ _id: ObjectId(req.params.id)}, 
+  {
+      $set: {status: req.body.status}
+  })
+  .then(result =>{
+      res.send(result.modifiedCount > 0);
+  })
+});
+
+
+app.post('/isAdmin', (req, res)=> {
+  const email = req.body.email;
+  adminsCollection.find({email: email})
+  .toArray((err, admins) => {
+      res.send(admins.length > 0);
+  })
 });
 
 
